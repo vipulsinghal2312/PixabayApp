@@ -1,0 +1,29 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution"
+    package="com.anivale.augmented_reality">
+
+    <dist:module
+        dist:instant="false"
+        dist:title="@string/title_augmented_reality">
+        <dist:delivery>
+            <dist:install-time>
+                <dist:conditions>
+                    <!-- To include or exclude this module by user countries, uncomment and update this section. -->
+                    <!-- Learn more @ [https://d.android.com/r/studio-ui/dynamic-delivery/conditional-delivery] -->
+                    <!--   <dist:user-countries dist:exclude="false"> -->
+                    <!--     <dist:country dist:code="US" /> -->
+                    <!--   </dist:user-countries> -->
+                    <dist:device-feature
+                        dist:name="android.hardware.opengles.version"
+                        dist:version="0x00030000" />
+
+                    <dist:device-feature
+                        dist:name="android.hardware.camera2.ar"/>
+
+                </dist:conditions>
+            </dist:install-time>
+        </dist:delivery>
+        <dist:fusing dist:include="true" />
+    </dist:module>
+</manifest>
+

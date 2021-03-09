@@ -23,22 +23,29 @@ class ImageGalleryActivity : AppCompatActivity(), ImageListAdapter.ImageClickLis
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: ImageListViewModel
     private var errorSnackbar: Snackbar? = null
-    private val imageListAdapter: ImageListAdapter = ImageListAdapter(this)
+    private lateinit var imageListAdapter: ImageListAdapter
+    private var isScreenRotated: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isScreenRotated = savedInstanceState?.getBoolean("is_rotated") ?: false
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.recyclerView.layoutManager = GridLayoutManager(this, 3)
 
         viewModel = ViewModelProvider(this).get(ImageListViewModel::class.java)
         binding.viewModel = viewModel
-        recyclerView.adapter = imageListAdapter
+        imageListAdapter = ImageListAdapter(this, viewModel.allImagesList)
+        binding.recyclerView.adapter = imageListAdapter
         viewModel.errorMessage.observe(this, Observer { errorMessage ->
             if (errorMessage != null) showError(errorMessage) else hideError()
         })
-        viewModel.imageList.observe(this, Observer { imageList ->
-            Log.d("imagelist", " -  $imageList[0].id")
-            imageListAdapter.updateImageList(imageList)
+        viewModel.latestPageImagesList.observe(this, Observer { latestPageImagesList ->
+//            Log.d("imagelist", " -  ${imageList[0].id}")
+            if (!isScreenRotated) {
+                imageListAdapter.updateImageList(latestPageImagesList)
+            } else {
+                isScreenRotated = false
+            }
         })
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -62,16 +69,17 @@ class ImageGalleryActivity : AppCompatActivity(), ImageListAdapter.ImageClickLis
                 super.onScrolled(recyclerView, dx, dy)
             }
         })
-        loadImages()
+//        loadImages()
     }
 
     private fun showError(@StringRes errorMessage: Int) {
         errorSnackbar = Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_INDEFINITE)
-        errorSnackbar?.setAction(R.string.retry, { loadImages() })
+        errorSnackbar?.setAction(R.string.retry) { loadImages() }
         errorSnackbar?.show()
     }
 
     private fun loadImages() {
+        Log.d("imagelist_pagecount", viewModel.pageCount.toString())
         viewModel.loadImages(
             viewModel.searchString,
             viewModel.pageCount,
@@ -87,5 +95,10 @@ class ImageGalleryActivity : AppCompatActivity(), ImageListAdapter.ImageClickLis
         val intent = Intent(this, ImageDetailsActivity::class.java)
         intent.putExtra(KEY_IMAGE__URL, image.webFormatUrl)
         startActivity(intent)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("is_rotated", true)
+        super.onSaveInstanceState(outState)
     }
 }

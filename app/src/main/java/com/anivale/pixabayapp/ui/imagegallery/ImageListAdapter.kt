@@ -8,9 +8,11 @@ import com.anivale.pixabayapp.R
 import com.anivale.pixabayapp.databinding.ItemGalleryImageBinding
 import com.anivale.pixabayapp.model.Image
 
-class ImageListAdapter(private val listener: ImageClickListener) :
+class ImageListAdapter(
+    private val listener: ImageClickListener,
+    private var imageList: MutableList<Image>
+) :
     RecyclerView.Adapter<ImageListAdapter.ViewHolder>() {
-    private lateinit var imageList: List<Image>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding: ItemGalleryImageBinding = DataBindingUtil.inflate(
@@ -28,12 +30,12 @@ class ImageListAdapter(private val listener: ImageClickListener) :
     }
 
     override fun getItemCount(): Int {
-        return if (::imageList.isInitialized) imageList.size else 0
+        return imageList.size
     }
 
     fun updateImageList(imageList: List<Image>) {
-        this.imageList = imageList
-        notifyDataSetChanged()
+        this.imageList.addAll(imageList)
+        notifyItemRangeInserted(this.imageList.size - imageList.size, imageList.size)
     }
 
     class ViewHolder(val binding: ItemGalleryImageBinding) :

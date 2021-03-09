@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scaleType="centerCrop"
-            app:imageUrl="@{viewModel.previewImageUrl}" />
+            app:previewImageUrl="@{viewModel.previewImageUrl}" />
 
     </androidx.cardview.widget.CardView>
 </layout>
